@@ -5,15 +5,9 @@ mod tests {
     use super::blotto;
 
     #[test]
-    fn test_allocation() {
-        let alloc = blotto::Allocation::new(3, 5);
-        assert_eq!(alloc.soldiers, vec![5, 0, 0]);
-    }
-
-    #[test]
     fn test_compare() {
-        let mut alloc1 = blotto::Allocation::new(3, 5);
-        let mut alloc2 = blotto::Allocation::new(3, 5);
+        let mut alloc1 = blotto::Allocation::new(vec![5, 0, 0]);
+        let mut alloc2 = blotto::Allocation::new(vec![5, 0, 0]);
         assert_eq!(alloc1.compare(&alloc2), blotto::Result::Draw);
 
         alloc1.soldiers[0] = 2;

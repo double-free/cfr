@@ -10,7 +10,6 @@ pub enum Result {
 }
 
 // helper function, recursive call
-// place n balls into m boxes
 fn helper(result: &mut Vec<Vec<usize>>, arr: &mut Vec<usize>, box_index: usize, balls: usize) {
     if box_index == arr.len() - 1 {
         // push all remaining balls into the last box
@@ -26,6 +25,7 @@ fn helper(result: &mut Vec<Vec<usize>>, arr: &mut Vec<usize>, box_index: usize, 
     }
 }
 
+// place n balls into m boxes
 // total permutations: C_{n+m-1}^{m-1}
 pub fn get_all_allocations(box_count: usize, ball_count: usize) -> Vec<Vec<usize>> {
     let mut arr = vec![0; box_count];
@@ -37,10 +37,8 @@ pub fn get_all_allocations(box_count: usize, ball_count: usize) -> Vec<Vec<usize
 }
 
 impl Allocation {
-    pub fn new(battle_count: usize, soldier_count: usize) -> Self {
-        let mut soldiers: Vec<i64> = vec![0; battle_count];
-        soldiers[0] = soldier_count as i64;
-        return Allocation { soldiers: soldiers };
+    pub fn new(alloc: Vec<i64>) -> Self {
+        return Allocation { soldiers: alloc };
     }
 
     pub fn compare(&self, another: &Allocation) -> Result {

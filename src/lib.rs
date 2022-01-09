@@ -34,4 +34,35 @@ mod tests {
         // alloc1 lose battle 0, win 1 and lose 2
         assert_eq!(alloc1.compare(&alloc2), blotto::Result::Lose);
     }
+
+    #[test]
+    fn test_all_allocation() {
+        let allocs = blotto::get_all_allocations(3, 5);
+        assert_eq!(
+            allocs,
+            vec![
+                [0, 0, 5],
+                [0, 1, 4],
+                [0, 2, 3],
+                [0, 3, 2],
+                [0, 4, 1],
+                [0, 5, 0],
+                [1, 0, 4],
+                [1, 1, 3],
+                [1, 2, 2],
+                [1, 3, 1],
+                [1, 4, 0],
+                [2, 0, 3],
+                [2, 1, 2],
+                [2, 2, 1],
+                [2, 3, 0],
+                [3, 0, 2],
+                [3, 1, 1],
+                [3, 2, 0],
+                [4, 0, 1],
+                [4, 1, 0],
+                [5, 0, 0],
+            ]
+        );
+    }
 }

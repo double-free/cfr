@@ -9,6 +9,33 @@ pub enum Result {
     Draw,
 }
 
+// helper function, recursive call
+// place n balls into m boxes
+fn helper(result: &mut Vec<Vec<usize>>, arr: &mut Vec<usize>, box_index: usize, balls: usize) {
+    if box_index == arr.len() - 1 {
+        // push all remaining balls into the last box
+        arr[box_index] = balls;
+        result.push(arr.clone());
+        return;
+    }
+
+    // try to place 0 to n balls to current box, and move to next box
+    for i in 0..balls + 1 {
+        arr[box_index] = i;
+        helper(result, arr, box_index + 1, balls - i);
+    }
+}
+
+// total permutations: C_{n+m-1}^{m-1}
+pub fn get_all_allocations(box_count: usize, ball_count: usize) -> Vec<Vec<usize>> {
+    let mut arr = vec![0; box_count];
+    let mut result = Vec::<Vec<usize>>::new();
+
+    helper(&mut result, &mut arr, 0, ball_count);
+
+    return result;
+}
+
 impl Allocation {
     pub fn new(battle_count: usize, soldier_count: usize) -> Self {
         let mut soldiers: Vec<i64> = vec![0; battle_count];

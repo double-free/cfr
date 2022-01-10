@@ -1,9 +1,12 @@
+use std::collections::HashMap;
+
+#[derive(Hash, PartialEq, Eq)]
 pub struct Allocation {
-    pub soldiers: Vec<i64>,
+    pub soldiers: Vec<usize>,
 }
 
-#[derive(Debug, PartialEq)]
-pub enum Result {
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub enum BattleResult {
     Win,
     Lose,
     Draw,
@@ -37,11 +40,11 @@ pub fn get_all_allocations(box_count: usize, ball_count: usize) -> Vec<Vec<usize
 }
 
 impl Allocation {
-    pub fn new(alloc: Vec<i64>) -> Self {
+    pub fn new(alloc: Vec<usize>) -> Self {
         return Allocation { soldiers: alloc };
     }
 
-    pub fn compare(&self, another: &Allocation) -> Result {
+    pub fn compare(&self, another: &Allocation) -> BattleResult {
         assert!(self.soldiers.len() == another.soldiers.len());
         let mut win = 0;
         let mut lose = 0;
@@ -54,13 +57,62 @@ impl Allocation {
         }
 
         if win == lose {
-            return Result::Draw;
+            return BattleResult::Draw;
         }
 
         if win > lose {
-            return Result::Win;
+            return BattleResult::Win;
         }
 
-        return Result::Lose;
+        return BattleResult::Lose;
+    }
+}
+
+pub struct BlottoGame {
+    battle_count: usize,
+    soldier_count: usize,
+
+    // key: strategy, value: strategy id
+    strategies: HashMap<Allocation, usize>,
+    game_matrix: Vec<Vec<BattleResult>>,
+}
+
+impl BlottoGame {
+    pub fn new(battle_count: usize, soldier_count: usize) -> Self {
+        let allocations: Vec<Allocation> = get_all_allocations(battle_count, soldier_count)
+            .into_iter()
+            .map(|soldiers| {
+                return Allocation { soldiers: soldiers };
+            })
+            .collect();
+
+        let mut game_matrix: Vec<Vec<BattleResult>> = Vec::new();
+        for i in 0..allocations.len() {
+            game_matrix.push(vec![BattleResult::Draw; allocations.len()]);
+        }
+        for i in 0..allocations.len() {
+            for j in i..allocations.len() {
+                let strategy_i = &allocations[i];
+                let strategy_j = &allocations[j];
+                game_matrix[i][j] = strategy_i.compare(strategy_j);
+                game_matrix[j][i] = match game_matrix[i][j] {
+                    BattleResult::Win => BattleResult::Lose,
+                    BattleResult::Lose => BattleResult::Win,
+                    BattleResult::Draw => BattleResult::Draw,
+                };
+            }
+        }
+
+        let mut strategies = HashMap::new();
+        for (idx, allocation) in allocations.into_iter().enumerate() {
+            strategies.insert(allocation, idx);
+        }
+
+        return BlottoGame {
+            battle_count: battle_count,
+            soldier_count: soldier_count,
+            strategies: strategies,
+            game_matrix: game_matrix,
+        };
     }
 }

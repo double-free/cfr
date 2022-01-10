@@ -8,25 +8,25 @@ mod tests {
     fn test_compare() {
         let mut alloc1 = blotto::Allocation::new(vec![5, 0, 0]);
         let mut alloc2 = blotto::Allocation::new(vec![5, 0, 0]);
-        assert_eq!(alloc1.compare(&alloc2), blotto::Result::Draw);
+        assert_eq!(alloc1.compare(&alloc2), blotto::BattleResult::Draw);
 
         alloc1.soldiers[0] = 2;
         alloc1.soldiers[1] = 2;
         alloc1.soldiers[2] = 1;
         // alloc1 lose battle 0, win 1 and 2
-        assert_eq!(alloc1.compare(&alloc2), blotto::Result::Win);
+        assert_eq!(alloc1.compare(&alloc2), blotto::BattleResult::Win);
 
         alloc2.soldiers[0] = 1;
         alloc2.soldiers[1] = 2;
         alloc2.soldiers[2] = 2;
         // alloc1 win battle 0, draw 1 and lose 2
-        assert_eq!(alloc1.compare(&alloc2), blotto::Result::Draw);
+        assert_eq!(alloc1.compare(&alloc2), blotto::BattleResult::Draw);
 
         alloc2.soldiers[0] = 3;
         alloc2.soldiers[1] = 0;
         alloc2.soldiers[2] = 2;
         // alloc1 lose battle 0, win 1 and lose 2
-        assert_eq!(alloc1.compare(&alloc2), blotto::Result::Lose);
+        assert_eq!(alloc1.compare(&alloc2), blotto::BattleResult::Lose);
     }
 
     #[test]
@@ -58,5 +58,15 @@ mod tests {
                 [5, 0, 0],
             ]
         );
+
+        // let allocs = blotto::get_all_allocations(5, 3);
+        // for (idx, alloc) in allocs.iter().enumerate() {
+        //     println!("{}: {:?}", idx, alloc);
+        // }
+    }
+
+    #[test]
+    fn test_game_construction() {
+        let game = blotto::BlottoGame::new(3, 5);
     }
 }

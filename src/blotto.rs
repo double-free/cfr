@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Hash, PartialEq, Eq)]
+#[derive(Hash, PartialEq, Eq, Clone)]
 pub struct Allocation {
     pub soldiers: Vec<usize>,
 }
@@ -68,13 +68,20 @@ impl Allocation {
     }
 }
 
+pub trait BlottoPlayer {
+    fn decide_allocation(&self, game: &BlottoGame, round: i64) -> Allocation;
+}
+
 pub struct BlottoGame {
-    battle_count: usize,
-    soldier_count: usize,
+    pub battle_count: usize,
+    pub soldier_count: usize,
 
     // key: strategy, value: strategy id
-    strategies: HashMap<Allocation, usize>,
-    game_matrix: Vec<Vec<BattleResult>>,
+    pub strategy_to_id: HashMap<Allocation, usize>,
+    pub id_to_strategy: HashMap<usize, Allocation>,
+    pub game_matrix: Vec<Vec<BattleResult>>,
+
+    players: Vec<Box<dyn BlottoPlayer>>,
 }
 
 impl BlottoGame {
@@ -87,7 +94,7 @@ impl BlottoGame {
             .collect();
 
         let mut game_matrix: Vec<Vec<BattleResult>> = Vec::new();
-        for i in 0..allocations.len() {
+        for _ in 0..allocations.len() {
             game_matrix.push(vec![BattleResult::Draw; allocations.len()]);
         }
         for i in 0..allocations.len() {
@@ -103,16 +110,20 @@ impl BlottoGame {
             }
         }
 
-        let mut strategies = HashMap::new();
-        for (idx, allocation) in allocations.into_iter().enumerate() {
-            strategies.insert(allocation, idx);
+        let mut strategy_to_id = HashMap::new();
+        let mut id_to_strategy = HashMap::new();
+        for (idx, allocation) in allocations.iter().enumerate() {
+            strategy_to_id.insert(allocation.clone(), idx);
+            id_to_strategy.insert(idx, allocation.clone());
         }
 
         return BlottoGame {
             battle_count: battle_count,
             soldier_count: soldier_count,
-            strategies: strategies,
+            strategy_to_id: strategy_to_id,
+            id_to_strategy: id_to_strategy,
             game_matrix: game_matrix,
+            players: Vec::new(),
         };
     }
 }

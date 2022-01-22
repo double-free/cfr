@@ -69,17 +69,19 @@ impl Allocation {
 }
 
 pub trait BlottoPlayer {
+    fn on_register(&mut self, player_id: usize, game: &BlottoGameMeta);
     fn decide_allocation(&self, game: &BlottoGameMeta, round: usize) -> Allocation;
-    fn handle_result(&self, game: &BlottoGameMeta, result: &BlottoGameResult);
-    fn set_id(&mut self, player_id: usize);
+    fn handle_result(&mut self, game: &BlottoGameMeta, result: &BlottoGameResult);
 }
 
 pub struct BlottoGameResult {
     // key: player id, value: allocation
-    allocations: HashMap<usize, Allocation>,
+    pub allocations: HashMap<usize, Allocation>,
 }
 
 pub struct BlottoGameMeta {
+    pub battle_count: usize,
+    pub soldier_count: usize,
     // key: strategy, value: strategy id
     pub strategy_to_id: HashMap<Allocation, usize>,
     pub id_to_strategy: HashMap<usize, Allocation>,
@@ -89,9 +91,7 @@ pub struct BlottoGameMeta {
 }
 
 pub struct BlottoGame {
-    pub battle_count: usize,
-    pub soldier_count: usize,
-
+    // not changed throughout the game
     pub game_meta: BlottoGameMeta,
 
     players: Vec<Box<dyn BlottoPlayer>>,
@@ -131,10 +131,9 @@ impl BlottoGame {
         }
 
         return BlottoGame {
-            battle_count: battle_count,
-            soldier_count: soldier_count,
-
             game_meta: BlottoGameMeta {
+                battle_count: battle_count,
+                soldier_count: soldier_count,
                 strategy_to_id: strategy_to_id,
                 id_to_strategy: id_to_strategy,
                 game_matrix: game_matrix,
@@ -145,7 +144,7 @@ impl BlottoGame {
     }
 
     pub fn add_player(&mut self, mut player: Box<dyn BlottoPlayer>) {
-        player.set_id(self.players.len());
+        player.on_register(self.players.len(), &self.game_meta);
         self.players.push(player);
     }
 

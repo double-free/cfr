@@ -1,4 +1,5 @@
 mod blotto;
+mod players;
 
 #[cfg(test)]
 mod tests {
@@ -68,5 +69,12 @@ mod tests {
     #[test]
     fn test_game_construction() {
         let game = blotto::BlottoGame::new(3, 5);
+        // for (idx, results) in game.game_meta.game_matrix.iter().enumerate() {
+        //     println!("{}: {:?}", idx, results);
+        // }
+        // check id to strategy mapping in the test above
+        assert_eq!(game.game_meta.game_matrix[0][8], blotto::BattleResult::Lose);
+        assert_eq!(game.game_meta.game_matrix[2][3], blotto::BattleResult::Draw);
+        assert_eq!(game.game_meta.game_matrix[4][20], blotto::BattleResult::Win);
     }
 }

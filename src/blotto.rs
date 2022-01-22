@@ -69,17 +69,30 @@ impl Allocation {
 }
 
 pub trait BlottoPlayer {
-    fn decide_allocation(&self, game: &BlottoGame, round: i64) -> Allocation;
+    fn decide_allocation(&self, game: &BlottoGameMeta, round: usize) -> Allocation;
+    fn handle_result(&self, game: &BlottoGameMeta, result: &BlottoGameResult);
+    fn set_id(&mut self, player_id: usize);
+}
+
+pub struct BlottoGameResult {
+    // key: player id, value: allocation
+    allocations: HashMap<usize, Allocation>,
+}
+
+pub struct BlottoGameMeta {
+    // key: strategy, value: strategy id
+    pub strategy_to_id: HashMap<Allocation, usize>,
+    pub id_to_strategy: HashMap<usize, Allocation>,
+
+    // strategy id as indexy
+    pub game_matrix: Vec<Vec<BattleResult>>,
 }
 
 pub struct BlottoGame {
     pub battle_count: usize,
     pub soldier_count: usize,
 
-    // key: strategy, value: strategy id
-    pub strategy_to_id: HashMap<Allocation, usize>,
-    pub id_to_strategy: HashMap<usize, Allocation>,
-    pub game_matrix: Vec<Vec<BattleResult>>,
+    pub game_meta: BlottoGameMeta,
 
     players: Vec<Box<dyn BlottoPlayer>>,
 }
@@ -120,10 +133,36 @@ impl BlottoGame {
         return BlottoGame {
             battle_count: battle_count,
             soldier_count: soldier_count,
-            strategy_to_id: strategy_to_id,
-            id_to_strategy: id_to_strategy,
-            game_matrix: game_matrix,
+
+            game_meta: BlottoGameMeta {
+                strategy_to_id: strategy_to_id,
+                id_to_strategy: id_to_strategy,
+                game_matrix: game_matrix,
+            },
+
             players: Vec::new(),
         };
+    }
+
+    pub fn add_player(&mut self, mut player: Box<dyn BlottoPlayer>) {
+        player.set_id(self.players.len());
+        self.players.push(player);
+    }
+
+    pub fn start(&mut self, total_round: usize) {
+        for round in 0..total_round {
+            let mut result = BlottoGameResult {
+                allocations: HashMap::new(),
+            };
+
+            for (player_id, player) in self.players.iter_mut().enumerate() {
+                let allocation = player.decide_allocation(&self.game_meta, round);
+                result.allocations.insert(player_id, allocation);
+            }
+
+            for player in self.players.iter_mut() {
+                player.handle_result(&self.game_meta, &result);
+            }
+        }
     }
 }

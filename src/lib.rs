@@ -3,7 +3,7 @@ mod players;
 
 #[cfg(test)]
 mod tests {
-    use super::blotto;
+    use super::*;
 
     #[test]
     fn test_compare() {
@@ -76,5 +76,18 @@ mod tests {
         assert_eq!(game.game_meta.game_matrix[0][8], blotto::BattleResult::Lose);
         assert_eq!(game.game_meta.game_matrix[2][3], blotto::BattleResult::Draw);
         assert_eq!(game.game_meta.game_matrix[4][20], blotto::BattleResult::Win);
+    }
+
+    #[test]
+    fn test_cfr_player() {
+        let mut cfr_player1 = players::cfr_player::CfrPlayer::new();
+        let mut cfr_player2 = players::cfr_player::CfrPlayer::new();
+
+        let mut game = blotto::BlottoGame::new(3, 5);
+
+        game.add_player(Box::new(cfr_player1));
+        game.add_player(Box::new(cfr_player2));
+
+        game.start(100000);
     }
 }

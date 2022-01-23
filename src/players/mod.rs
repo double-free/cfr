@@ -1,1 +1,1 @@
-mod cfr_player;
+pub mod cfr_player;

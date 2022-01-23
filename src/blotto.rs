@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Hash, PartialEq, Eq, Clone)]
+#[derive(Hash, PartialEq, Eq, Clone, Debug)]
 pub struct Allocation {
     pub soldiers: Vec<usize>,
 }
@@ -72,6 +72,7 @@ pub trait BlottoPlayer {
     fn on_register(&mut self, player_id: usize, game: &BlottoGameMeta);
     fn decide_allocation(&self, game: &BlottoGameMeta, round: usize) -> Allocation;
     fn handle_result(&mut self, game: &BlottoGameMeta, result: &BlottoGameResult);
+    fn on_exit_game(&self, game: &BlottoGameMeta);
 }
 
 pub struct BlottoGameResult {
@@ -162,6 +163,10 @@ impl BlottoGame {
             for player in self.players.iter_mut() {
                 player.handle_result(&self.game_meta, &result);
             }
+        }
+
+        for player in self.players.iter_mut() {
+            player.on_exit_game(&self.game_meta);
         }
     }
 }

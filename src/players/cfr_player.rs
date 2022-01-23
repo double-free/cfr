@@ -3,7 +3,7 @@ use crate::blotto;
 use rand::{thread_rng, Rng};
 use std::collections::HashMap;
 
-struct CfrPlayer {
+pub struct CfrPlayer {
     player_id: usize,
 
     // key: player id, value: regret sum for each strategy id
@@ -70,7 +70,11 @@ impl CfrPlayer {
 }
 
 impl blotto::BlottoPlayer for CfrPlayer {
-    fn decide_allocation(&self, game: &blotto::BlottoGameMeta, round: usize) -> blotto::Allocation {
+    fn decide_allocation(
+        &self,
+        game: &blotto::BlottoGameMeta,
+        _round: usize,
+    ) -> blotto::Allocation {
         let cfr_action_id = self.get_cfr_action();
 
         if cfr_action_id.is_some() {
@@ -120,15 +124,28 @@ impl blotto::BlottoPlayer for CfrPlayer {
 
                 self.regret_sum.get_mut(oppo_id).unwrap()[strategy_id] += payoff - my_action_payoff;
             }
-
-            println!(
-                "regret sum to opponent {} is {:?}",
-                oppo_id, self.regret_sum[oppo_id]
-            );
         }
     }
 
     fn on_register(&mut self, player_id: usize, _game: &blotto::BlottoGameMeta) {
         self.player_id = player_id;
+    }
+
+    fn on_exit_game(&self, game: &blotto::BlottoGameMeta) {
+        // print regret matrix
+        for (oppo_id, action_regrets) in self.regret_sum.iter() {
+            let mut action_candidates = Vec::new();
+            for (action_id, regret) in action_regrets.iter().enumerate() {
+                if *regret > 0 {
+                    action_candidates.push(game.id_to_strategy[&action_id].clone());
+                }
+            }
+
+            println!(
+                "player {}: for opponent {}, regret sum for each action {:?}, \
+                action candidates {:?}",
+                self.player_id, oppo_id, action_regrets, action_candidates
+            );
+        }
     }
 }

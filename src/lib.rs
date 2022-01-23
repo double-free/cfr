@@ -80,8 +80,8 @@ mod tests {
 
     #[test]
     fn test_cfr_player() {
-        let mut cfr_player1 = players::cfr_player::CfrPlayer::new();
-        let mut cfr_player2 = players::cfr_player::CfrPlayer::new();
+        let cfr_player1 = players::cfr_player::CfrPlayer::new();
+        let cfr_player2 = players::cfr_player::CfrPlayer::new();
 
         let mut game = blotto::BlottoGame::new(3, 5);
 

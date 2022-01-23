@@ -132,20 +132,18 @@ impl blotto::BlottoPlayer for CfrPlayer {
     }
 
     fn on_exit_game(&self, game: &blotto::BlottoGameMeta) {
-        // print regret matrix
         for (oppo_id, action_regrets) in self.regret_sum.iter() {
-            let mut action_candidates = Vec::new();
+            // print regret array
+            println!(
+                "player {}: for opponent {}, regret sum for each action {:?}",
+                self.player_id, oppo_id, action_regrets
+            );
             for (action_id, regret) in action_regrets.iter().enumerate() {
                 if *regret > 0 {
-                    action_candidates.push(game.id_to_strategy[&action_id].clone());
+                    println!("player {}: for opponent {}, candidate strategy {:?} has positive regret {}",
+                    self.player_id, oppo_id, game.id_to_strategy[&action_id], regret);
                 }
             }
-
-            println!(
-                "player {}: for opponent {}, regret sum for each action {:?}, \
-                action candidates {:?}",
-                self.player_id, oppo_id, action_regrets, action_candidates
-            );
         }
     }
 }

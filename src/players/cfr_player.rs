@@ -19,9 +19,6 @@ impl CfrPlayer {
     }
 
     fn get_cfr_action(&self) -> Option<usize> {
-        // TODO: deal with multi players
-        let mut actions = Vec::new();
-
         // return action id from regrets
         let get_action_from_regrets = |regrets: &Vec<i64>| -> Option<usize> {
             let mut actions = Vec::new();
@@ -60,6 +57,9 @@ impl CfrPlayer {
         if self.regret_sum.len() == 0 {
             return None;
         }
+
+        // TODO: deal with multi players
+        let mut actions = Vec::new();
         for (_, action_regrets) in self.regret_sum.iter() {
             actions.push(get_action_from_regrets(action_regrets));
         }
@@ -81,11 +81,16 @@ impl blotto::BlottoPlayer for CfrPlayer {
             return game.id_to_strategy[&cfr_action_id.unwrap()].clone();
         }
 
-        // no valid cfr action, use default
-        let mut alloc = vec![0; game.battle_count];
-        alloc[0] = game.soldier_count;
-        // first round, return something random
-        return blotto::Allocation { soldiers: alloc };
+        // no valid cfr action, use random
+        let mut rng = thread_rng();
+        let strategy_id: usize = rng.gen_range(0..game.id_to_strategy.len());
+        let rand_strategy = game.id_to_strategy[&strategy_id].clone();
+
+        println!(
+            "player {} chose random strategy {:?}",
+            self.player_id, &rand_strategy
+        );
+        return rand_strategy;
     }
 
     fn handle_result(&mut self, game: &blotto::BlottoGameMeta, result: &blotto::BlottoGameResult) {
